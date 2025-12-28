@@ -3,37 +3,47 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-/* ================= DEBUG (SAFE) ================= */
+/* ================= DEBUG ================= */
 console.log("EMAIL_USER loaded:", !!process.env.EMAIL_USER);
 console.log("EMAIL_PASS loaded:", !!process.env.EMAIL_PASS);
 
 /* ================= APP ================= */
 const app = express();
 
-/* ================= CORS CONFIG (IMPORTANT) ================= */
+/* ================= CORS CONFIG (FINAL FIX) ================= */
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://ashishjha1-portfolio.vercel.app",
-  "https://ashishjha1-portfolio-git-main-ismartashishs-projects.vercel.app/"
+  "https://ashishjha1-portfolio-git-main-ismartashishs-projects.vercel.app",
+  "https://ashishjha1-portfolio.vercel.app"
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // allow requests with no origin (Postman, server-to-server)
+      // Allow Postman / server-to-server
       if (!origin) return callback(null, true);
 
+      // Allow exact known origins
       if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+        return callback(null, true);
       }
+
+      // ✅ Allow ALL Vercel preview deployments
+      if (origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
+      console.error("❌ Blocked by CORS:", origin);
+      return callback(new Error("Not allowed by CORS"));
     },
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
     credentials: true
   })
 );
+
+/* ✅ REQUIRED for preflight */
+app.options("*", cors());
 
 /* ================= MIDDLEWARE ================= */
 app.use(express.json());
