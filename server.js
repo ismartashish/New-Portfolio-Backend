@@ -3,47 +3,37 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-/* ================= SAFE DEBUG ================= */
+/* ================= DEBUG ================= */
 console.log("EMAIL_USER loaded:", !!process.env.EMAIL_USER);
 console.log("EMAIL_PASS loaded:", !!process.env.EMAIL_PASS);
 
 /* ================= APP ================= */
 const app = express();
 
-/* ================= CORS CONFIG ================= */
+/* ================= CORS ================= */
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://ashishjha1-portfolio-git-main-ismartashishs-projects.vercel.app",
-  "https://ashishjha1-portfolio.vercel.app"
+  "https://ashishjha1-portfolio.vercel.app",
+  "https://ashishjha1-portfolio-git-main-ismartashishs-projects.vercel.app"
 ];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // allow requests without origin (Postman, server-to-server)
+    origin: function (origin, callback) {
+      // allow Postman / server-to-server
       if (!origin) return callback(null, true);
 
-      // allow listed origins
       if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
       }
-
-      // allow ALL vercel preview deployments
-      if (origin.endsWith(".vercel.app")) {
-        return callback(null, true);
-      }
-
-      // ❗ DO NOT THROW ERROR (prevents HTML response)
-      return callback(null, false);
     },
-    methods: ["GET", "POST", "OPTIONS"],
+    methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
     credentials: true
   })
 );
-
-// handle preflight requests
-app.options("*", cors());
 
 /* ================= MIDDLEWARE ================= */
 app.use(express.json());
@@ -51,7 +41,7 @@ app.use(express.json());
 /* ================= ROUTES ================= */
 app.use("/api/contact", require("./routes/contact"));
 
-/* ================= DATABASE ================= */
+/* ================= DB ================= */
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -60,25 +50,12 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
-/* ================= HEALTH CHECK ================= */
+/* ================= HEALTH ================= */
 app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Portfolio Server Running"
-  });
+  res.status(200).send("Portfolio Server Running");
 });
 
-/* ================= GLOBAL ERROR HANDLER ================= */
-app.use((err, req, res, next) => {
-  console.error("❌ SERVER ERROR:", err.message);
-
-  res.status(500).json({
-    success: false,
-    message: err.message || "Internal Server Error"
-  });
-});
-
-/* ================= START SERVER ================= */
+/* ================= START ================= */
 app.listen(PORT, () => {
   console.log(`🚀 Server listening on port ${PORT}`);
 });
