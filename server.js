@@ -10,28 +10,12 @@ console.log("EMAIL_PASS loaded:", !!process.env.EMAIL_PASS);
 /* ================= APP ================= */
 const app = express();
 
-/* ================= CORS ================= */
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://ashishjha1-portfolio.vercel.app",
-  "https://ashishjha1-portfolio-git-main-ismartashishs-projects.vercel.app"
-];
-
+/* ================= CORS (FIXED) ================= */
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow Postman / server-to-server
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
-      }
-    },
+    origin: true, // allow all origins (safe for portfolio contact)
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
-    credentials: true
   })
 );
 
@@ -41,7 +25,7 @@ app.use(express.json());
 /* ================= ROUTES ================= */
 app.use("/api/contact", require("./routes/contact"));
 
-/* ================= DB ================= */
+/* ================= DATABASE ================= */
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
