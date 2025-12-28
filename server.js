@@ -11,7 +11,7 @@ const app = express();
 /* ================= CORS CONFIG ================= */
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://ismartashish.github.io"
+  "https://ashishjha1-portfolio.vercel.app"
 ];
 
 app.use(
